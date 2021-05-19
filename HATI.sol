@@ -1158,7 +1158,7 @@ contract HATI is Context, IERC20, Ownable {
         _rOwned[sender] = _rOwned[sender].sub(rAmount);
         _tOwned[recipient] = _tOwned[recipient].add(tTransferAmount);
         _rOwned[recipient] = _rOwned[recipient].add(rTransferAmount);
-        _takeLiquidity(tLiquidity);
+        // _takeLiquidity(tLiquidity);
         _reflectFee(rFee, tFee, tMarketing);
         emit Transfer(sender, recipient, tTransferAmount);
     }
@@ -1211,9 +1211,9 @@ contract HATI is Context, IERC20, Ownable {
 
         // ***** add
         // tFee - burn 4%
-        transfer(0x0000000000000000000000000000000000000000, tFee);
+        transfer(address(0), tFee);
         // tMarketing - send 1% to marketin
-        transfer(_marketing, tMarketing);
+        transfer(owner(), tMarketing);
     }
 
     // ***** change
@@ -1314,15 +1314,19 @@ contract HATI is Context, IERC20, Ownable {
         return (rSupply, tSupply);
     }
 
-    function _takeLiquidity(uint256 tLiquidity) private {
-        uint256 currentRate = _getRate();
-        uint256 rLiquidity = tLiquidity.mul(currentRate);
-        _rOwned[address(this)] = _rOwned[address(this)].add(rLiquidity);
-        if (_isExcluded[address(this)])
-            _tOwned[address(this)] = _tOwned[address(this)].add(tLiquidity);
-    }
+    // function _takeLiquidity(uint256 tLiquidity) private {
+    //     uint256 currentRate = _getRate();
+    //     uint256 rLiquidity = tLiquidity.mul(currentRate);
+    //     _rOwned[address(this)] = _rOwned[address(this)].add(rLiquidity);
+    //     if (_isExcluded[address(this)])
+    //         _tOwned[address(this)] = _tOwned[address(this)].add(tLiquidity);
+    // }
 
     function calculateTaxFee(uint256 _amount) private view returns (uint256) {
+        (, uint256 tSupply) = _getCurrentSupply();
+        if (tSupply <= 1000000000) {
+            return 0;
+        }
         return _amount.mul(_taxFee).div(10**2);
     }
 
@@ -1331,6 +1335,10 @@ contract HATI is Context, IERC20, Ownable {
         view
         returns (uint256)
     {
+        (, uint256 tSupply) = _getCurrentSupply();
+        if (tSupply <= 1000000000) {
+            return 0;
+        }
         return _amount.mul(_liquidityFee).div(10**2);
     }
 
@@ -1528,7 +1536,7 @@ contract HATI is Context, IERC20, Ownable {
         ) = _getValues(tAmount);
         _rOwned[sender] = _rOwned[sender].sub(rAmount);
         _rOwned[recipient] = _rOwned[recipient].add(rTransferAmount);
-        _takeLiquidity(tLiquidity);
+        // _takeLiquidity(tLiquidity);
         // ***** change
         _reflectFee(rFee, tFee, tMarketing);
         emit Transfer(sender, recipient, tTransferAmount);
@@ -1552,7 +1560,7 @@ contract HATI is Context, IERC20, Ownable {
         _rOwned[sender] = _rOwned[sender].sub(rAmount);
         _tOwned[recipient] = _tOwned[recipient].add(tTransferAmount);
         _rOwned[recipient] = _rOwned[recipient].add(rTransferAmount);
-        _takeLiquidity(tLiquidity);
+        // _takeLiquidity(tLiquidity);
         // ***** change
         _reflectFee(rFee, tFee, tMarketing);
         emit Transfer(sender, recipient, tTransferAmount);
@@ -1576,7 +1584,7 @@ contract HATI is Context, IERC20, Ownable {
         _tOwned[sender] = _tOwned[sender].sub(tAmount);
         _rOwned[sender] = _rOwned[sender].sub(rAmount);
         _rOwned[recipient] = _rOwned[recipient].add(rTransferAmount);
-        _takeLiquidity(tLiquidity);
+        // _takeLiquidity(tLiquidity);
         // ***** change
         _reflectFee(rFee, tFee, tMarketing);
         emit Transfer(sender, recipient, tTransferAmount);
